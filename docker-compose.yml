@@ -1,0 +1,35 @@
+version: '2'
+
+services:
+  bitcoind:
+    image: kylemanna/bitcoind
+    container_name: bitcoind
+    ports:
+      - "127.0.0.1:8333:8333"
+      - "127.0.0.1:8331:8331"
+      - "127.0.0.1:29000:29000"
+    volumes:
+      - ./bitcoin.conf:/bitcoin/.bitcoin/bitcoin.conf
+
+  eclair:
+    image: acinq/eclair
+    container_name: eclair
+    ports:
+      - "9735:9735"
+      - "127.0.0.1:8080:8080"
+    environment:
+      - "JAVA_OPTS= 
+          -Declair.bitcoind.host=bitcoind
+          -Declair.bitcoind.rpcport=8331 
+          -Declair.bitcoind.rpcuser=rpcuser 
+          -Declair.bitcoind.rpcpassword=abc
+          -Declair.chain=mainnet 
+          -Declair.api.binding-ip=0.0.0.0 
+          -Declair.api.enabled=true 
+          -Declair.api.password=123 
+          -Declair.node-alias=rialce 
+          -Declair.printToConsole"
+    volumes:
+      - ${ECLAIR_DATADIR}:/data
+    links:
+      - bitcoind
